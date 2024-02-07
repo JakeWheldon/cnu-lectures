@@ -1,0 +1,39 @@
+import numpy as np
+# We do not necessarily need to compute the invese for every computation Ax=y
+# The inverse allows you to calculate x for every possibility of y.
+# We only need x for this y, so gaussian elimination is more efficient
+# We use np.linalg.solve() for GE, and np.linalg.inv() for inverses.
+# Note that matrix calculations are not exact.  If we were to compute 
+# np.max(np.abs(A @ x - y)) we see it gives a result close to 16 decimal points in, 
+# Computers express in 16 bits, so expect a tiny lack of accuracy
+# We can define a function to build augmented matricies:
+
+n = 5
+A = np.random.rand(n, n)
+y = np.random.rand(1, n)
+
+def build_S(A,y):
+
+    m, n = A.shape
+    S = np.zeros((m, n+1))
+
+    S[:, :-1] = A
+    S[:, -1] = y
+
+    return S
+
+S = build_S(A, y)
+
+# Below is an outline of Gaussian elimination
+S[0] /= S[0,0] # This gets a leading 1 in the first row
+
+S[1] -= S[0] * S[1,0] # This gets a leading zero in the next row across
+
+# We can iterate this across the column with loops
+j = 0
+S[j] /= S[j,j]
+for k in range(1, n):
+    S[k] -= S[j] * S[k,j]
+
+# You get the gist, we now want to perform the same thing with the next (m-1, n-1) matrix
+# Then we want to back substitute it all.
